@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Customer Billing System Pro</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { background: #f5f7fb; }
+        /* Login */
+        #loginPage { height: 100vh; display: flex; justify-content: center; align-items: center; background: linear-gradient(135deg, #1976d2, #42a5f5); }
+        .loginBox { width: 380px; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 0 20px rgba(0,0,0,.3); }
+        .loginBox h1 { text-align: center; margin-bottom: 20px; color: #1976d2; }
+        .loginBox input { width: 100%; padding: 12px; margin: 10px 0; font-size: 16px; border: 1px solid #ccc; border-radius: 5px; }
+        .loginBox button { width: 100%; padding: 12px; background: #1976d2; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 18px; margin-top: 10px;}
+        .loginBox button:hover { background: #125ea9; }
+        /* Main */
+        #mainPage { display: none; }
+        header { background: #1976d2; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+        header h1 { font-size: 28px; }
+        .logout { padding: 10px 18px; background: red; border: none; border-radius: 5px; color: white; cursor: pointer; font-weight: bold;}
+        .container { width: 95%; margin: auto; margin-top: 20px; }
+        /* Cards */
+        .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 5px 12px rgba(0,0,0,.15); }
+        .card h3 { margin-bottom: 10px; color: #333;}
+        .card h1 { color: #1976d2; }
+        /* Form */
+        .form { margin-top: 20px; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 5px 12px rgba(0,0,0,.15); }
+        .form h2 { margin-bottom: 10px; color: #1976d2; }
+        .form input, .form select { width: 100%; padding: 12px; margin-top: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 15px;}
+        .form button { margin-top: 15px; padding: 12px 20px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;}
+        .form button:hover { background: #218838; }
+        /* Search */
+        .search { margin-top: 20px; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 5px 12px rgba(0,0,0,.15); }
+        .search h2 { margin-bottom: 10px; color: #1976d2; }
+        .search input { width: 75%; padding: 12px; border: 1px solid #ccc; border-radius: 5px; margin-right: 10px;}
+        .search button { padding: 12px 20px; background: #1976d2; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 15px; margin-right: 5px;}
+        /* Table */
+        table { width: 100%; margin-top: 20px; border-collapse: collapse; background: white; box-shadow: 0 5px 12px rgba(0,0,0,.15); }
+        table th { background: #1976d2; color: white; padding: 12px; }
+        table td { padding: 12px; text-align: center; border: 1px solid #ddd; }
+        .edit { background: orange; color: white; border: none; border-radius: 4px; padding: 8px 12px; cursor: pointer; }
+        .delete { background: red; color: white; border: none; border-radius: 4px; padding: 8px 12px; cursor: pointer; }
+        .print { background: green; color: white; border: none; border-radius: 4px; padding: 8px 12px; cursor: pointer; }
+        
+        @media(max-width: 900px) { .cards { grid-template-columns: 1fr 1fr; } }
+        @media(max-width: 600px) { .cards { grid-template-columns: 1fr; } .search input { width: 100%; margin-bottom: 10px;} }
+    </style>
+</head>
+<body>
+
+    <div id="loginPage">
+        <div class="loginBox">
+            <h1>Billing System Pro</h1>
+            <input type="text" id="username" placeholder="Username">
+            <input type="password" id="password" placeholder="Password">
+            <button onclick="login()">LOGIN</button>
+        </div>
+    </div>
+
+    <div id="mainPage">
+        <header>
+            <h1>Customer Billing System Pro</h1>
+            <button class="logout" onclick="logout()">Logout</button>
+        </header>
+
+        <div class="container">
+            <div class="cards">
+                <div class="card">
+                    <h3>Total Customers</h3>
+                    <h1 id="customerCount">0</h1>
+                </div>
+                <div class="card">
+                    <h3>Total Bills</h3>
+                    <h1 id="billCount">0</h1>
+                </div>
+                <div class="card">
+                    <h3>Total Collection</h3>
+                    <h1 id="totalCollection">₹0</h1>
+                </div>
+                <div class="card">
+                    <h3>Today's Collection</h3>
+                    <h1 id="todayCollection">₹0</h1>
+                </div>
+            </div>
+
+            <div class="form">
+                <h2>Add Customer Bill</h2>
+                <input type="text" id="customerName" placeholder="Customer Name">
+                <input type="text" id="mobile" placeholder="Mobile Number">
+                <input type="number" id="hours" placeholder="Hours">
+                <input type="number" id="minutes" placeholder="Minutes">
+                <select id="rate">
+                    <option value="700">₹700 Per Hour</option>
+                    <option value="1000">₹1000 Per Hour</option>
+                </select>
+                <button id="mainBtn" onclick="addCustomer()">Generate Bill</button>
+            </div>
+
+            <div class="search">
+                <h2>Search Customer</h2>
+                <input type="text" id="searchBox" placeholder="Search by Name / Mobile / Bill ID">
+                <button onclick="searchCustomer()">Search</button>
+                <button onclick="loadTable()">Show All</button>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Bill ID</th>
+                        <th>Name</th>
+                        <th>Mobile</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Hours</th>
+                        <th>Min</th>
+                        <th>Rate</th>
+                        <th>Total</th>
+                        <th>Edit</th>
+                        <th>Delete</th>
+                        <th>Print</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let customers = [];
+        let editIndex = -1; // Aa variable bhulai gayo hato jena thi code crash thato hato
+
+        // 1. Login Logic
+        function login() {
+            let u = document.getElementById("username").value;
+            let p = document.getElementById("password").value;
+            if (u === "prins" && p === "1234") {
+                document.getElementById("loginPage").style.display = "none";
+                document.getElementById("mainPage").style.display = "block";
+                loadData();
+            } else {
+                alert("Invalid Username Or Password");
+            }
+        }
+
+        function logout() {
+            location.reload();
+        }
+
+        // 2. Data Storage (Navu naam rakhyu che jethi juno kachro na nade)
+        function saveData() {
+            localStorage.setItem("billing_pro_data_v3", JSON.stringify(customers));
+        }
+
+        function loadData() {
+            let data = localStorage.getItem("billing_pro_data_v3");
+            if (data) {
+                customers = JSON.parse(data);
+            }
+            loadTable();
+        }
+
+        // 3. Dashboard Update
+        function updateSummary() {
+            let total = 0;
+            let todayTotal = 0;
+            let today = new Date().toLocaleDateString();
+
+            customers.forEach(c => {
+                total += c.total;
+                if (c.date === today) {
+                    todayTotal += c.total;
+                }
+            });
+
+            document.getElementById("billCount").innerHTML = customers.length;
+            
+            let unique = [...new Set(customers.map(c => c.name.toLowerCase()))];
+            document.getElementById("customerCount").innerHTML = unique.length;
+
+            document.getElementById("totalCollection").innerHTML = "₹" + total.toFixed(2);
+            document.getElementById("todayCollection").innerHTML = "₹" + todayTotal.toFixed(2);
+        }
+
+        // 4. Add or Update Customer
+        function addCustomer() {
+            let name = document.getElementById("customerName").value.trim();
+            let mobile = document.getElementById("mobile").value.trim();
+            let hours = parseFloat(document.getElementById("hours").value);
+            let minutes = parseFloat(document.getElementById("minutes").value);
+            let rate = parseInt(document.getElementById("rate").value);
+
+            // Validations
+            if (name === "") { alert("Enter Customer Name"); return; }
+            if (mobile.length !== 10) { alert("Enter Valid 10-digit Mobile Number"); return; }
+            if (isNaN(hours) || isNaN(minutes)) { alert("Enter Hours And Minutes"); return; }
+            if (hours < 0) { alert("Hours Cannot Be Negative"); return; }
+            if (minutes < 0 || minutes > 59) { alert("Minutes Must Be Between 0 And 59"); return; }
+
+            // Calculation
+            let total = (hours * rate) + (minutes * (rate / 60));
+            let now = new Date();
+
+            if (editIndex === -1) {
+                // New Bill Generate
+                customers.push({
+                    billId: "BILL" + Date.now(),
+                    name: name,
+                    mobile: mobile,
+                    hours: hours,
+                    minutes: minutes,
+                    rate: rate,
+                    total: Number(total.toFixed(2)),
+                    date: now.toLocaleDateString(),
+                    time: now.toLocaleTimeString()
+                });
+            } else {
+                // Update Existing Bill
+                customers[editIndex].name = name;
+                customers[editIndex].mobile = mobile;
+                customers[editIndex].hours = hours;
+                customers[editIndex].minutes = minutes;
+                customers[editIndex].rate = rate;
+                customers[editIndex].total = Number(total.toFixed(2));
+                
+                // Reset Edit Mode
+                editIndex = -1;
+                document.getElementById("mainBtn").innerText = "Generate Bill";
+                document.getElementById("mainBtn").style.background = "#28a745";
+            }
+
+            saveData();
+            loadTable();
+
+            // Clear Input Fields
+            document.getElementById("customerName").value = "";
+            document.getElementById("mobile").value = "";
+            document.getElementById("hours").value = "";
+            document.getElementById("minutes").value = "";
+            document.getElementById("rate").selectedIndex = 0;
+        }
+
+        // 5. Load Table
+        function loadTable() {
+            let body = document.getElementById("tableBody");
+            body.innerHTML = "";
+
+            customers.forEach((c, index) => {
+                body.innerHTML += `
+                <tr>
+                    <td>${c.billId}</td>
+                    <td>${c.name}</td>
+                    <td>${c.mobile}</td>
+                    <td>${c.date}</td>
+                    <td>${c.time}</td>
+                    <td>${c.hours}</td>
+                    <td>${c.minutes}</td>
+                    <td>₹${c.rate}</td>
+                    <td>₹${c.total.toFixed(2)}</td>
+                    <td><button class="edit" onclick="editCustomer(${index})">Edit</button></td>
+                    <td><button class="delete" onclick="deleteCustomer(${index})">Delete</button></td>
+                    <td><button class="print" onclick="printBill(${index})">Print</button></td>
+                </tr>`;
+            });
+            updateSummary();
+        }
+
+        // 6. Edit Customer
+        function editCustomer(index) {
+            let c = customers[index];
+            document.getElementById("customerName").value = c.name;
+            document.getElementById("mobile").value = c.mobile;
+            document.getElementById("hours").value = c.hours;
+            document.getElementById("minutes").value = c.minutes;
+            document.getElementById("rate").value = c.rate;
+            
+            editIndex = index;
+            document.getElementById("mainBtn").innerText = "Update Bill";
+            document.getElementById("mainBtn").style.background = "orange";
+            window.scrollTo(0, 0);
+        }
+
+        // 7. Delete Customer
+        function deleteCustomer(index) {
+            if(confirm("Are you sure you want to delete this bill?")) {
+                customers.splice(index, 1);
+                saveData();
+                loadTable();
+            }
+        }
+
+        // 8. Search Customer
+        function searchCustomer() {
+            let key = document.getElementById("searchBox").value.toLowerCase().trim();
+            let body = document.getElementById("tableBody");
+            
+            if(key === "") {
+                loadTable();
+                return;
+            }
+
+            let result = customers.filter(c =>
+                c.name.toLowerCase().includes(key) ||
+                c.mobile.includes(key) ||
+                c.billId.toLowerCase().includes(key)
+            );
+
+            body.innerHTML = "";
+            result.forEach(c => {
+                let index = customers.findIndex(x => x.billId === c.billId);
+                body.innerHTML += `
+                <tr>
+                    <td>${c.billId}</td>
+                    <td>${c.name}</td>
+                    <td>${c.mobile}</td>
+                    <td>${c.date}</td>
+                    <td>${c.time}</td>
+                    <td>${c.hours}</td>
+                    <td>${c.minutes}</td>
+                    <td>₹${c.rate}</td>
+                    <td>₹${c.total.toFixed(2)}</td>
+                    <td><button class="edit" onclick="editCustomer(${index})">Edit</button></td>
+                    <td><button class="delete" onclick="deleteCustomer(${index})">Delete</button></td>
+                    <td><button class="print" onclick="printBill(${index})">Print</button></td>
+                </tr>`;
+            });
+        }
+
+        // 9. Print Bill
+        function printBill(index) {
+            let c = customers[index];
+            let win = window.open("", "", "width=600,height=600");
+            win.document.write(`
+                <div style="font-family: Arial; padding: 20px;">
+                    <h2 style="color:#1976d2; text-align:center;">Customer Invoice</h2>
+                    <hr>
+                    <p><b>Bill ID:</b> ${c.billId}</p>
+                    <p><b>Customer Name:</b> ${c.name}</p>
+                    <p><b>Mobile No:</b> ${c.mobile}</p>
+                    <p><b>Date & Time:</b> ${c.date} (${c.time})</p>
+                    <hr>
+                    <table style="width:100%; text-align:left; border-collapse:collapse; margin-top:10px;">
+                        <tr><th style="border-bottom:1px solid #000; padding:5px;">Description</th><th style="border-bottom:1px solid #000; padding:5px;">Details</th></tr>
+                        <tr><td style="padding:5px;">Hours</td><td style="padding:5px;">${c.hours}</td></tr>
+                        <tr><td style="padding:5px;">Minutes</td><td style="padding:5px;">${c.minutes}</td></tr>
+                        <tr><td style="padding:5px;">Rate</td><td style="padding:5px;">₹${c.rate}/hr</td></tr>
+                        <tr><th style="padding:10px 5px; border-top:1px solid #000;">Total Amount</th><th style="padding:10px 5px; border-top:1px solid #000;">₹${c.total.toFixed(2)}</th></tr>
+                    </table>
+                    <br>
+                    <h3 style="text-align:center;">Thank You! Visit Again</h3>
+                </div>
+            `);
+            win.document.close();
+            win.print();
+        }
+
+    </script>
+</body>
+</html> 
